@@ -18,12 +18,12 @@ if not exist .\magick\magick.exe (
 echo.
 echo you can right click and it may paste if not select paste
 echo please make sure no roms have an explanation mark in them
-:: set /p "ndsroms=where are your roms: "
-set "ndsroms=F:\roms\nds"
+set /p "ndsroms=where are your roms: "
+:: set "ndsroms=F:\roms\nds"
 cls
 echo exa: F:\_nds\dsimenuplusplus
-:: set /p "boxart=where is your dsimenu++ folder: "
-set "boxart=F:\_nds\dsimenuplusplus"
+set /p "boxart=where is your dsimenu++ folder: "
+:: set "boxart=F:\_nds\dsimenuplusplus"
 if not exist "!boxart!\boxart" mkdir "!boxart!\boxart"
 
 :: del "!boxart!\boxart\*"
