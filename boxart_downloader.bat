@@ -4,26 +4,19 @@ Color 0A
 title Boxart Downloader PoC - By MarioMasta64
 setlocal enabledelayedexpansion
 
-if not exist .\magick\magick.exe (
-	echo download and extract magick to "!CD!\magick\"
-	echo make sure it is the portable version
-	echo i will open your browser, ok.
-	pause
-	start https://www.imagemagick.org/script/download.php#windows
-	echo press enter when youre finished
-	pause>nul
-)
+:: if not exist .\magick\magick.exe (
+:: echo download and extract magick to "!CD!\magick\"
+:: echo make sure it is the portable version
+:: echo i will open your browser, ok.
+:: pause
+:: start https://www.imagemagick.org/script/download.php#windows
+:: echo press enter when youre finished
+:: pause>nul
+:: )
 :: echo if you renamed your roms or didnt dump your roms with godmode9
 :: echo download this:
-echo.
-echo you can right click and it may paste if not select paste
-echo please make sure no roms have an explanation mark in them
-set /p "ndsroms=where are your roms: "
-:: set "ndsroms=F:\roms\nds"
-cls
-echo exa: F:\_nds\dsimenuplusplus
-set /p "boxart=where is your dsimenu++ folder: "
-:: set "boxart=F:\_nds\dsimenuplusplus"
+if not exist select_folder.vbs call :Set-Batch
+if exist select_folder.vbs call :Set-VBS
 if not exist "!boxart!\boxart" mkdir "!boxart!\boxart"
 
 :: del "!boxart!\boxart\*"
@@ -38,8 +31,36 @@ for %%A in ("!ndsroms!\*.nds") do (
 	set "B=!A:~-13,4!"
 	call :Get-Artwork
 )
+title "Downloading - Finished"
 pause
 exit
+
+:Set-Batch
+echo.
+echo you can right click and it may paste if not select paste
+echo please make sure no roms have an explanation mark in them
+set /p "ndsroms=where are your roms: "
+:: set "ndsroms=F:\roms\nds"
+cls
+echo exa: F:\_nds\dsimenuplusplus
+set /p "boxart=where is your dsimenu++ folder: "
+:: set "boxart=F:\_nds\dsimenuplusplus"
+(goto) 2>nul
+
+:Set-VBS
+cscript /nologo select_folder.vbs "where are your roms. " > ndsroms.txt
+set /p ndsroms=<ndsroms.txt
+if "!ndsroms!" == "Cancelled" goto Cancelled
+cscript /nologo select_folder.vbs "where is your dsimenu++ folder. example: F:\_nds\dsimenuplusplus\" > boxart.txt
+set /p boxart=<boxart.txt
+if "!boxart!" == "Cancelled" goto Cancelled
+(goto) 2>nul
+
+:Cancelled
+cls
+echo why would you do that?
+pause
+goto :Set-VBS
 
 :IDRead
 for %%A in ("!ndsroms!\*.nds") do (
@@ -107,11 +128,14 @@ if "!region!" NEQ "" (
 
 :Download-Boxart
 title "Downloading - TitleID: !B! - Region: !region!"
-if not exist !B!.png (
-	if not exist !B!.bmp wget -q --show-progress "https://art.gametdb.com/ds/coverS/!region!/!B!.png"
+:: if not exist !B!.png (
+if not exist !B!.bmp (
+:: if not exist !B!.bmp wget -q --show-progress "https://art.gametdb.com/ds/coverS/!region!/!B!.png"
+	if not exist !B!.bmp wget -q --show-progress "https://art.gametdb.com/ds/coverDS/!region!/!B!.bmp"
 )
-if exist !B!.png echo "!B!.png successfully downloaded"
-if not exist !B!.bmp call :Convert-Boxart
+:: if exist !B!.png echo "!B!.png successfully downloaded"
+if exist !B!.bmp echo "!B!.bmp successfully downloaded"
+:: if not exist !B!.bmp call :Convert-Boxart
 if exist !B!.bmp call :Copy-Boxart
 (goto) 2>nul
 
