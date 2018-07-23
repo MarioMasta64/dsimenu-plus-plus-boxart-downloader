@@ -15,13 +15,18 @@ setlocal enabledelayedexpansion
 :: )
 :: echo if you renamed your roms or didnt dump your roms with godmode9
 :: echo download this:
-if not exist select_folder.vbs call :Set-Batch
-if exist select_folder.vbs call :Set-VBS
+if exist debug.txt call :Set-Debug
+if not exist debug.txt (
+	if not exist select_folder.vbs call :Set-Batch
+	if exist select_folder.vbs call :Set-VBS
+)
+if not exist .\boxart\ mkdir .\boxart\
 if not exist "!boxart!\boxart" mkdir "!boxart!\boxart"
 
-:: del "!boxart!\boxart\*"
-:: del *.bmp
+if exist overwrite.txt del "!boxart!\boxart\*"
+if exist overwrite.txt del *.bmp
 
+:Continue
 cls
 if exist readbytesraw.py goto readbytes
 if exist IDRead.exe goto IDRead
@@ -31,27 +36,33 @@ for %%A in ("!ndsroms!\*.nds") do (
 	set "B=!A:~-13,4!"
 	call :Get-Artwork
 )
+if exist temp.txt del temp.txt
+if exist ndsroms.txt del ndsroms.txt
+if exist boxart.txt del boxart.txt
 title "Downloading - Finished"
 pause
 exit
 
+:Set-Debug
+set "ndsroms=H:\roms\nds"
+set "boxart=H:\_nds\dsimenuplusplus"
+(goto) 2>nul
+
 :Set-Batch
 echo.
 echo you can right click and it may paste if not select paste
-echo please make sure no roms have an explanation mark in them
+echo please make sure no roms have an exclamation mark in them
 set /p "ndsroms=where are your roms: "
-:: set "ndsroms=F:\roms\nds"
 cls
-echo exa: F:\_nds\dsimenuplusplus
+echo exa: H:\_nds\dsimenuplusplus
 set /p "boxart=where is your dsimenu++ folder: "
-:: set "boxart=F:\_nds\dsimenuplusplus"
 (goto) 2>nul
 
 :Set-VBS
 cscript /nologo select_folder.vbs "where are your roms. " > ndsroms.txt
 set /p ndsroms=<ndsroms.txt
 if "!ndsroms!" == "Cancelled" goto Cancelled
-cscript /nologo select_folder.vbs "where is your dsimenu++ folder. example: F:\_nds\dsimenuplusplus\" > boxart.txt
+cscript /nologo select_folder.vbs "where is your dsimenu++ folder. example: H:\_nds\dsimenuplusplus\" > boxart.txt
 set /p boxart=<boxart.txt
 if "!boxart!" == "Cancelled" goto Cancelled
 (goto) 2>nul
@@ -127,16 +138,20 @@ if "!region!" NEQ "" (
 (goto) 2>nul
 
 :Download-Boxart
+if exist direct.txt set "boxartdownloaddir=!boxart!\boxart"
+if not exist direct.txt set "boxartdownloaddir=.\boxart\"
 title "Downloading - TitleID: !B! - Region: !region!"
 :: if not exist !B!.png (
-if not exist !B!.bmp (
+if not exist .\!boxartdownloaddir!\!B!.bmp (
 :: if not exist !B!.bmp wget -q --show-progress "https://art.gametdb.com/ds/coverS/!region!/!B!.png"
-	if not exist !B!.bmp wget -q --show-progress "https://art.gametdb.com/ds/coverDS/!region!/!B!.bmp"
+	if not exist .\!boxartdownloaddir!\!B!.bmp wget -P "!boxartdownloaddir!" -q --show-progress "https://art.gametdb.com/ds/coverDS/!region!/!B!.bmp"
 )
 :: if exist !B!.png echo "!B!.png successfully downloaded"
-if exist !B!.bmp echo "!B!.bmp successfully downloaded"
+if exist .\!boxartdownloaddir!\!B!.bmp echo "!B!.bmp successfully downloaded"
 :: if not exist !B!.bmp call :Convert-Boxart
-if exist !B!.bmp call :Copy-Boxart
+if not exist direct.txt (
+	if exist .\boxart\!B!.bmp call :Copy-Boxart
+)
 (goto) 2>nul
 
 :Convert-Boxart
@@ -150,6 +165,6 @@ if exist !B!.bmp echo "!B!.png successfully converted"
 :Copy-Boxart
 if exist !B!.png del !B!.png
 title "Copying - TitleID: !B! - Region: !region!"
-copy !B!.bmp "!boxart!\boxart\" >nul
+copy .\boxart\!B!.bmp "!boxart!\boxart\" >nul
 if exist "!boxart!\boxart\!B!.bmp" echo "!B!.bmp successfully copied"
 (goto) 2>nul
