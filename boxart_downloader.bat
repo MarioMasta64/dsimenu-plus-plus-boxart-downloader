@@ -139,12 +139,12 @@ if "!region!" NEQ "" (
 
 :Download-Boxart
 if exist direct.txt set "boxartdownloaddir=!boxart!\boxart"
-if not exist direct.txt set "boxartdownloaddir=.\boxart\"
+if not exist direct.txt set "boxartdownloaddir=.\boxart"
 title "Downloading - TitleID: !B! - Region: !region!"
 :: if not exist !B!.png (
-if not exist .\!boxartdownloaddir!\!B!.bmp (
+if not exist !boxartdownloaddir!\!B!.bmp (
 :: if not exist !B!.bmp wget -q --show-progress "https://art.gametdb.com/ds/coverS/!region!/!B!.png"
-	if not exist .\!boxartdownloaddir!\!B!.bmp wget -P "!boxartdownloaddir!" -q --show-progress "https://art.gametdb.com/ds/coverDS/!region!/!B!.bmp"
+	if not exist !boxartdownloaddir!\!B!.bmp wget -P "!boxartdownloaddir!\\" -q --show-progress "https://art.gametdb.com/ds/coverDS/!region!/!B!.bmp"
 )
 :: if exist !B!.png echo "!B!.png successfully downloaded"
 if exist .\!boxartdownloaddir!\!B!.bmp echo "!B!.bmp successfully downloaded"
